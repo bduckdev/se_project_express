@@ -16,4 +16,4 @@ function handleErr(res, e) {
     .send({ message: "An error has occured on the server" });
 }
 
-module.exports = { handleErr };
+module.exports = { handleErr, BAD_REQUEST, NOT_FOUND, DEFAULT };

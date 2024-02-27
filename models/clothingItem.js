@@ -11,6 +11,7 @@ const itemSchema = new mongoose.Schema({
   weather: {
     type: String,
     required: true,
+    enum: ["hot", "warm", "cold"],
   },
   imageUrl: {
     type: String,
@@ -28,8 +29,10 @@ const itemSchema = new mongoose.Schema({
     required: true,
   },
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "user" }],
-  //  likes: "ObjectId[] reference to user modal",
-  // createdAt: "date type and default value date.now()",
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 module.exports = mongoose.model("item", itemSchema);
