@@ -1,14 +1,5 @@
 const ClothingItem = require("../models/clothingItem");
-
-function handleErr(res, e) {
-  if (e.name === "ValidationError" || e.name === "CastError") {
-    return res.status(400).send({ message: e.message });
-  }
-  if (e.name.includes("NotFound")) {
-    return res.status(404).send({ message: e.message });
-  }
-  return res.status(500).send({ message: e.message });
-}
+const { handleErr } = require("../utils/errors");
 
 async function getItems(_, res) {
   try {
