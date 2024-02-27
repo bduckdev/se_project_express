@@ -12,16 +12,6 @@ app.use((req, _, next) => {
   };
   next();
 });
-
-app.use((req, res, next) => {
-  if (!req.route) {
-    return res
-      .status(NOT_FOUND)
-      .send({ message: "Requested resource not found" });
-  }
-  return next();
-});
-
 mongoose
   .connect("mongodb://127.0.0.1:27017/wtwr_db")
   .then(() => {
@@ -31,6 +21,10 @@ mongoose
 
 app.use(express.json());
 app.use("/", indexRouter);
+
+app.use((_, res) => {
+  res.status(NOT_FOUND).send({ message: "Requested resource not found" });
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
