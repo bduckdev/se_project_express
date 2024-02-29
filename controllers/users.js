@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = require("../utils/config");
 const User = require("../models/user");
-const { handleErr } = require("../utils/errors");
+const { handleErr, DUPLICATE_USER } = require("../utils/errors");
 
 async function getUsers(_, res) {
   try {
@@ -23,6 +23,9 @@ async function createUser(req, res) {
       email,
       password: hashedPassword,
     }).then((data) => {
+      if (!data.ok) {
+        throw Error(DUPLICATE_USER);
+      }
       const userData = {};
       userData.name = data.name;
       userData.avatar = data.avatar;
