@@ -26,11 +26,16 @@ async function createItem(req, res) {
   }
 }
 async function deleteItem(req, res) {
+  const { user } = req;
   const { id } = req.params;
   try {
-    const deletedItem = await ClothingItem.deleteOne({
+    const item = await ClothingItem.findOne({
       _id: id,
     }).orFail();
+    if (item.owner !== user._id) {
+      return res.status(403).send({ message: "Incorrect Permissions" });
+    }
+    const deletedItem = await ClothingItem.findOneAndDelete({ _id: id });
     return res.status(200).send(deletedItem);
   } catch (e) {
     return handleErr(res, e);

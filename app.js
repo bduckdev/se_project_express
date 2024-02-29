@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
 const indexRouter = require("./routes/index");
 const { NOT_FOUND } = require("./utils/errors");
 
@@ -12,6 +13,7 @@ app.use((req, _, next) => {
   };
   next();
 });
+app.use(cors());
 mongoose
   .connect("mongodb://127.0.0.1:27017/wtwr_db")
   .then(() => {
