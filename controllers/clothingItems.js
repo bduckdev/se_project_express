@@ -32,7 +32,7 @@ async function deleteItem(req, res) {
     const item = await ClothingItem.findOne({
       _id: id,
     }).orFail();
-    if (item.owner !== user._id) {
+    if (user._id !== item.owner.toString()) {
       return res.status(403).send({ message: "Incorrect Permissions" });
     }
     const deletedItem = await ClothingItem.findOneAndDelete({ _id: id });

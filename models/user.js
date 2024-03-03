@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
-const { handleErr } = require("../utils/errors");
 
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true, minlength: 2, maxlength: 30 },
@@ -36,21 +35,13 @@ const userSchema = new mongoose.Schema({
 userSchema.statics.findUserByCredentials = async function findUserByCredentials(
   email,
   password,
-  res,
 ) {
-  try {
-    const user = await this.findOne({ email });
+  const user = await this.findOne({ email }).select("+password").orFail();
+  const matched = await bcrypt.compare(password, user.password);
 
-    return bcrypt.compare(password, user.password).then((matched) => {
-      if (!matched) {
-        throw new Error();
-      }
-
-      return user;
-    });
-  } catch (e) {
-    return handleErr(res, e);
+  if (!matched) {
+    throw new Error("Incorrect email or password");
   }
+  return user;
 };
-
 module.exports = mongoose.model("user", userSchema);

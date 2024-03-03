@@ -22,17 +22,13 @@ async function createUser(req, res) {
       avatar,
       email,
       password: hashedPassword,
-    }).then((data) => {
-      if (!data.ok) {
-        throw Error(DUPLICATE_USER);
-      }
-      const userData = {};
-      userData.name = data.name;
-      userData.avatar = data.avatar;
-      userData.email = data.email;
-      return userData;
     });
-    return res.status(201).send(newUser);
+    const userData = {
+      name: newUser.name,
+      avatar: newUser.avatar,
+      email: newUser.email,
+    };
+    return res.status(201).send(userData);
   } catch (e) {
     return handleErr(res, e);
   }
@@ -51,15 +47,23 @@ async function getUser(req, res) {
 async function login(req, res) {
   try {
     const user = req.body;
+    if (!user.password || !user.email) {
+      return res
+        .status(400)
+        .send({ message: "Missing username and/or password" });
+    }
     const foundUser = await User.findUserByCredentials(
       user.email,
       user.password,
-    ).orFail();
+    );
     const token = jwt.sign({ _id: foundUser._id }, JWT_SECRET, {
       expiresIn: "7d",
     });
-    return res.status(200).send(token);
+    return res.status(200).send({ token });
   } catch (e) {
+    if (e.name === "DocumentNotFoundError") {
+      return res.status(400).send({ message: "mongo sux lol" });
+    }
     return handleErr(res, e);
   }
 }
@@ -79,8 +83,8 @@ async function modifyUserData(req, res) {
     const userData = await User.findOneAndUpdate(
       { _id: req.user._id },
       { name, avatar },
-    );
-    console.log(userData);
+      { new: true },
+    ).orFail();
     return res.status(200).send(userData);
   } catch (e) {
     return handleErr(res, e);

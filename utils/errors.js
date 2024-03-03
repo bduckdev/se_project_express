@@ -16,7 +16,7 @@ function handleErr(res, e) {
       .status(NOT_FOUND)
       .send({ message: "Requested resource not found" });
   }
-  if (e.name === "DuplicateKey") {
+  if (e.name === "DuplicateKey" || e.name === "MongoServerError") {
     return res.status(DUPLICATE_USER).send({ message: "User Already Exists" });
   }
   return res
