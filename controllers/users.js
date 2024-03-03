@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = require("../utils/config");
 const User = require("../models/user");
-const { handleErr, DUPLICATE_USER } = require("../utils/errors");
+const { handleErr } = require("../utils/errors");
 
 async function getUsers(_, res) {
   try {
