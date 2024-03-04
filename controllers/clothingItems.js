@@ -1,5 +1,5 @@
 const ClothingItem = require("../models/clothingItem");
-const { handleErr } = require("../utils/errors");
+const { handleErr, BAD_PERMISSIONS } = require("../utils/errors");
 
 async function getItems(_, res) {
   try {
@@ -33,7 +33,9 @@ async function deleteItem(req, res) {
       _id: id,
     }).orFail();
     if (user._id !== item.owner.toString()) {
-      return res.status(403).send({ message: "Incorrect Permissions" });
+      return res
+        .status(BAD_PERMISSIONS)
+        .send({ message: "Incorrect Permissions" });
     }
     const deletedItem = await ClothingItem.findOneAndDelete({ _id: id });
     return res.status(200).send(deletedItem);

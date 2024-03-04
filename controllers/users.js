@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = require("../utils/config");
 const User = require("../models/user");
-const { handleErr } = require("../utils/errors");
+const { handleErr, BAD_REQUEST } = require("../utils/errors");
 
 async function getUsers(_, res) {
   try {
@@ -49,8 +49,8 @@ async function login(req, res) {
     const user = req.body;
     if (!user.password || !user.email) {
       return res
-        .status(400)
-        .send({ message: "Missing username and/or password" });
+        .status(BAD_REQUEST)
+        .send({ message: "Incorrect email or password" });
     }
     const foundUser = await User.findUserByCredentials(
       user.email,
@@ -62,7 +62,9 @@ async function login(req, res) {
     return res.status(200).send({ token });
   } catch (e) {
     if (e.name === "DocumentNotFoundError") {
-      return res.status(400).send({ message: "mongo sux lol" });
+      return res
+        .status(BAD_REQUEST)
+        .send({ message: "Incorrect email or password" });
     }
     return handleErr(res, e);
   }
@@ -83,7 +85,7 @@ async function modifyUserData(req, res) {
     const userData = await User.findOneAndUpdate(
       { _id: req.user._id },
       { name, avatar },
-      { new: true },
+      { new: true, runValidators: true },
     ).orFail();
     return res.status(200).send(userData);
   } catch (e) {

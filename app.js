@@ -7,12 +7,6 @@ const { NOT_FOUND } = require("./utils/errors");
 const app = express();
 const { PORT = 3001 } = process.env;
 
-// app.use((req, _, next) => {
-//  req.user = {
-//    _id: "65dbc489fc3a746e2fbc10d2", // paste the _id of the test user created in the previous step
-//  };
-//  next();
-// });
 app.use(cors());
 mongoose
   .connect("mongodb://127.0.0.1:27017/wtwr_db")
