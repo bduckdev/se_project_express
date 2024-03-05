@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = require("../utils/config");
 const User = require("../models/user");
-const { handleErr, BAD_REQUEST, VALIDATION_ERROR } = require("../utils/errors");
+const { handleErr, BAD_REQUEST, UNAUTHORIZED } = require("../utils/errors");
 
 async function getUsers(_, res) {
   try {
@@ -63,7 +63,7 @@ async function login(req, res) {
   } catch (e) {
     if (e.name === "DocumentNotFoundError") {
       return res
-        .status(VALIDATION_ERROR)
+        .status(UNAUTHORIZED)
         .send({ message: "Incorrect email or password" });
     }
     return handleErr(res, e);
