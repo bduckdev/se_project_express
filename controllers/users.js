@@ -2,18 +2,19 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = require("../utils/config");
 const User = require("../models/user");
-const { handleErr, BAD_REQUEST, UNAUTHORIZED } = require("../utils/errors");
+const BadRequestError = require("../middlewares/errors/BadRequestError");
+const UnauthorizedError = require("../middlewares/errors/UnauthorizedError");
 
-async function getUsers(_, res) {
+async function getUsers(_, res, next) {
   try {
     const users = await User.find({});
     return res.status(200).send(users);
   } catch (e) {
-    return handleErr(res, e);
+    return next(e);
   }
 }
 
-async function createUser(req, res) {
+async function createUser(req, res, next) {
   try {
     const { name, avatar, email, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -30,27 +31,24 @@ async function createUser(req, res) {
     };
     return res.status(201).send(userData);
   } catch (e) {
-    return handleErr(res, e);
+    return next(e);
   }
 }
 
-async function getUser(req, res) {
+async function getUser(req, res, next) {
   const { userId } = req.params;
   try {
     const user = await User.findById(userId).orFail();
     return res.status(200).send(user);
   } catch (e) {
-    return handleErr(res, e);
+    return next(e);
   }
 }
-
-async function login(req, res) {
+async function login(req, res, next) {
   try {
     const user = req.body;
     if (!user.password || !user.email) {
-      return res
-        .status(BAD_REQUEST)
-        .send({ message: "Incorrect email or password" });
+      throw new BadRequestError();
     }
     const foundUser = await User.findUserByCredentials(
       user.email,
@@ -62,24 +60,22 @@ async function login(req, res) {
     return res.status(200).send({ token });
   } catch (e) {
     if (e.name === "DocumentNotFoundError") {
-      return res
-        .status(UNAUTHORIZED)
-        .send({ message: "Incorrect email or password" });
+      throw new UnauthorizedError();
     }
-    return handleErr(res, e);
+    return next(e);
   }
 }
 
-async function getCurrentUser(req, res) {
+async function getCurrentUser(req, res, next) {
   try {
     const currentUser = await User.findById(req.user._id);
     return res.status(200).send(currentUser);
   } catch (e) {
-    return handleErr(res, e);
+    return next(e);
   }
 }
 
-async function modifyUserData(req, res) {
+async function modifyUserData(req, res, next) {
   try {
     const { name, avatar } = req.body;
     const userData = await User.findOneAndUpdate(
@@ -89,7 +85,7 @@ async function modifyUserData(req, res) {
     ).orFail();
     return res.status(200).send(userData);
   } catch (e) {
-    return handleErr(res, e);
+    return next(e);
   }
 }
 module.exports = {

@@ -1,15 +1,15 @@
+const ForbiddenError = require("../middlewares/errors/ForbiddenError");
 const ClothingItem = require("../models/clothingItem");
-const { handleErr, FORBIDDEN } = require("../utils/errors");
 
-async function getItems(_, res) {
+async function getItems(_, res, next) {
   try {
     const items = await ClothingItem.find({});
     return res.status(200).send(items);
   } catch (e) {
-    return handleErr(res, e);
+    return next(e);
   }
 }
-async function createItem(req, res) {
+async function createItem(req, res, next) {
   const { name, weather, imageUrl } = req.body;
   const { user } = req;
   try {
@@ -22,10 +22,10 @@ async function createItem(req, res) {
 
     return res.send(newItem);
   } catch (e) {
-    return handleErr(res, e);
+    return next(e);
   }
 }
-async function deleteItem(req, res) {
+async function deleteItem(req, res, next) {
   const { user } = req;
   const { id } = req.params;
   try {
@@ -33,16 +33,16 @@ async function deleteItem(req, res) {
       _id: id,
     }).orFail();
     if (user._id !== item.owner.toString()) {
-      return res.status(FORBIDDEN).send({ message: "Incorrect Permissions" });
+      throw new ForbiddenError();
     }
     const deletedItem = await ClothingItem.findOneAndDelete({ _id: id });
     return res.status(200).send(deletedItem);
   } catch (e) {
-    return handleErr(res, e);
+    return next(e);
   }
 }
 
-async function likeItem(req, res) {
+async function likeItem(req, res, next) {
   try {
     const item = await ClothingItem.findByIdAndUpdate(
       req.params.id,
@@ -52,11 +52,11 @@ async function likeItem(req, res) {
 
     return res.send(item);
   } catch (e) {
-    return handleErr(res, e);
+    return next(e);
   }
 }
 
-async function unlikeItem(req, res) {
+async function unlikeItem(req, res, next) {
   try {
     const item = await ClothingItem.findByIdAndUpdate(
       req.params.id,
@@ -66,7 +66,7 @@ async function unlikeItem(req, res) {
 
     return res.send(item);
   } catch (e) {
-    return handleErr(res, e);
+    return next(e);
   }
 }
 
