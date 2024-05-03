@@ -20,7 +20,6 @@ async function createItem(req, res, next) {
       imageUrl,
       owner: user._id,
     });
-    console.log(newItem);
 
     return res.send(newItem);
   } catch (e) {
@@ -54,7 +53,6 @@ async function likeItem(req, res, next) {
 
     return res.send(item);
   } catch (e) {
-    console.log(e.name);
     if (e.name === "DocumentNotFoundError") {
       return res.status(NOT_FOUND).send({ message: "Unauthorized" });
     }
