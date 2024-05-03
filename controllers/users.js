@@ -3,7 +3,6 @@ const jwt = require("jsonwebtoken");
 const JWT_SECRET = require("../utils/config");
 const User = require("../models/user");
 const BadRequestError = require("../middlewares/errors/BadRequestError");
-const UnauthorizedError = require("../middlewares/errors/UnauthorizedError");
 
 async function getUsers(_, res, next) {
   try {
@@ -59,9 +58,6 @@ async function login(req, res, next) {
     });
     return res.status(200).send({ token });
   } catch (e) {
-    if (e.name === "DocumentNotFoundError") {
-      throw new UnauthorizedError();
-    }
     return next(e);
   }
 }

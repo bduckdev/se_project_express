@@ -3,6 +3,7 @@ const {
   DEFAULT,
   DUPLICATE_USER,
   BAD_REQUEST,
+  UNAUTHORIZED,
 } = require("../utils/errors");
 
 function errorHandler(err, _, res, next) {
@@ -20,6 +21,9 @@ function errorHandler(err, _, res, next) {
     return res
       .status(NOT_FOUND)
       .send({ message: "Requested resource not found" });
+  }
+  if (err.name === "DocumentNotFoundError") {
+    return res.status(UNAUTHORIZED).send({ message: "Unauthorized" });
   }
   if (err.name === "DuplicateKey" || err.name === "MongoServerError") {
     return res.status(DUPLICATE_USER).send({ message: "User Already Exists" });
