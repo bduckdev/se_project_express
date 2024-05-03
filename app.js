@@ -8,12 +8,12 @@ const errorHandler = require("./middlewares/error-handler");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
 
 const app = express();
-const {PORT} = process.env;
+const { PORT = 3001 } = process.env;
 
 app.use(cors());
 
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect("mongodb://127.0.0.1:27017/wtwr_db")
   .then(() => {
     console.log("Successfully connected to DB");
   })
