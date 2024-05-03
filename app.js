@@ -21,6 +21,11 @@ mongoose
 
 app.use(express.json());
 app.use(requestLogger);
+app.get("/crash-test", () => {
+  setTimeout(() => {
+    throw new Error("Server will crash now");
+  }, 0);
+});
 app.use("/", indexRouter);
 
 app.use((_, res) => {
@@ -31,12 +36,6 @@ app.use(errors());
 app.use(errorHandler);
 
 app.use(errorLogger);
-
-app.get("/crash-test", () => {
-  setTimeout(() => {
-    throw new Error("Server will crash now");
-  }, 0);
-});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
