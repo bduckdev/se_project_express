@@ -5,7 +5,7 @@ const { UnauthorizedError } = require("./errors");
 function auth(req, _, next) {
   const { authorization } = req.headers;
   if (!authorization) {
-    return next(UnauthorizedError("Authorization error"));
+    return next(new UnauthorizedError("Authorization error"));
   }
   const token = authorization.replace("Bearer ", "");
   try {
@@ -13,7 +13,7 @@ function auth(req, _, next) {
     req.user = payload;
     return next();
   } catch (e) {
-    return next(UnauthorizedError("Authorization error"));
+    return next(new UnauthorizedError("Authorization error"));
   }
 }
 

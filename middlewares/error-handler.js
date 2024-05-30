@@ -3,6 +3,7 @@ function errorHandler(e, _, res, next) {
     res.status(500).send("An error has occured on the server");
     next();
   } else {
+    console.log(e);
     res.status(e.statusCode).send({ message: e.message });
     next();
   }
