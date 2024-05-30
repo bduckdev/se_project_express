@@ -1,17 +1,8 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = require("../utils/config");
+const { JWT_SECRET } = require("../utils/config");
 const User = require("../models/user");
-const BadRequestError = require("../middlewares/errors/BadRequestError");
-
-async function getUsers(_, res, next) {
-  try {
-    const users = await User.find({});
-    return res.status(200).send(users);
-  } catch (e) {
-    return next(e);
-  }
-}
+const { BadRequestError, ConflictError } = require("../middlewares/errors");
 
 async function createUser(req, res, next) {
   try {
@@ -30,19 +21,16 @@ async function createUser(req, res, next) {
     };
     return res.status(201).send(userData);
   } catch (e) {
+    if (e.name === "ValidationError") {
+      return next(new BadRequestError("Invalid Data"));
+    }
+    if (e.code === 11000) {
+      return next(new ConflictError("Email already exists"));
+    }
     return next(e);
   }
 }
 
-async function getUser(req, res, next) {
-  const { userId } = req.params;
-  try {
-    const user = await User.findById(userId).orFail();
-    return res.status(200).send(user);
-  } catch (e) {
-    return next(e);
-  }
-}
 async function login(req, res, next) {
   try {
     const user = req.body;
@@ -58,6 +46,9 @@ async function login(req, res, next) {
     });
     return res.status(200).send({ token });
   } catch (e) {
+    if (e.name === "ValidationError") {
+      return next(new BadRequestError("Invalid Data"));
+    }
     return next(e);
   }
 }
@@ -84,9 +75,8 @@ async function modifyUserData(req, res, next) {
     return next(e);
   }
 }
+
 module.exports = {
-  getUsers,
-  getUser,
   createUser,
   login,
   getCurrentUser,

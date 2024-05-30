@@ -3,9 +3,10 @@ const { errors } = require("celebrate");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const indexRouter = require("./routes/index");
-const { NOT_FOUND } = require("./utils/errors");
 const errorHandler = require("./middlewares/error-handler");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
+
+require("dotenv").config();
 
 const app = express();
 const { PORT = 3001 } = process.env;
@@ -28,14 +29,9 @@ app.get("/crash-test", () => {
 });
 app.use("/", indexRouter);
 
-app.use((_, res) => {
-  res.status(NOT_FOUND).send({ message: "Requested resource not found" });
-});
-
+app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
-
-app.use(errorLogger);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

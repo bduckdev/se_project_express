@@ -1,7 +1,6 @@
 # WTWR (What to Wear?): Back End
 
-PROJECT IS HOSTED AT:
-bduckwtwr.crabdance.com/
+PROJECT IS HOSTED [here](bduckwtwr.crabdance.com)
 
 This project is a backend for the WTWR project written in express and utilizing MongoDB as a database. the front-end can be found [here](https://github.com/bduckdev/se_project_react)
 

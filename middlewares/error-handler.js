@@ -1,36 +1,11 @@
-const {
-  NOT_FOUND,
-  DEFAULT,
-  DUPLICATE_USER,
-  BAD_REQUEST,
-  UNAUTHORIZED,
-} = require("../utils/errors");
-
-function errorHandler(err, _, res, next) {
-  if (err.statusCode) {
-    return res.status(err.statusCode).send({ message: err.message });
+function errorHandler(e, _, res, next) {
+  if (e.statusCode === 500) {
+    res.status(500).send("An error has occured on the server");
+    next();
+  } else {
+    res.status(e.statusCode).send({ message: e.message });
+    next();
   }
-  if (
-    err.name === "ValidationError" ||
-    err.name === "CastError" ||
-    err.name === "TypeError"
-  ) {
-    return res.status(BAD_REQUEST).send({ message: "Bad request" });
-  }
-  if (err.name.includes("NotFound")) {
-    return res
-      .status(NOT_FOUND)
-      .send({ message: "Requested resource not found" });
-  }
-  if (err.name === "DocumentNotFoundError") {
-    return res.status(UNAUTHORIZED).send({ message: "Unauthorized" });
-  }
-  if (err.name === "DuplicateKey" || err.name === "MongoServerError") {
-    return res.status(DUPLICATE_USER).send({ message: "User Already Exists" });
-  }
-  return res
-    .status(DEFAULT)
-    .send({ message: "An error has occured on the server" });
 }
 
 module.exports = errorHandler;

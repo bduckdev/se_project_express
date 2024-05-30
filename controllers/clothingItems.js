@@ -1,6 +1,6 @@
+const { BadRequestError, NotFoundError } = require("../middlewares/errors");
 const ForbiddenError = require("../middlewares/errors/ForbiddenError");
 const ClothingItem = require("../models/clothingItem");
-const { NOT_FOUND } = require("../utils/errors");
 
 async function getItems(_, res, next) {
   try {
@@ -23,6 +23,9 @@ async function createItem(req, res, next) {
 
     return res.send(newItem);
   } catch (e) {
+    if (e.name === "ValidationError") {
+      return next(new BadRequestError("Invalid data"));
+    }
     return next(e);
   }
 }
@@ -34,11 +37,17 @@ async function deleteItem(req, res, next) {
       _id: id,
     }).orFail();
     if (user._id !== item.owner.toString()) {
-      throw new ForbiddenError();
+      throw new ForbiddenError("Forbidden Error");
     }
     const deletedItem = await ClothingItem.findOneAndDelete({ _id: id });
     return res.status(200).send(deletedItem);
   } catch (e) {
+    if (e.name === "DocumentNotFoundError") {
+      return next(new NotFoundError("Requested item not found"));
+    }
+    if (e.name === "ValidationError") {
+      return next(new BadRequestError("Invalid ID"));
+    }
     return next(e);
   }
 }
@@ -54,7 +63,10 @@ async function likeItem(req, res, next) {
     return res.send(item);
   } catch (e) {
     if (e.name === "DocumentNotFoundError") {
-      return res.status(NOT_FOUND).send({ message: "Unauthorized" });
+      return next(new NotFoundError("Requested item not found"));
+    }
+    if (e.name === "ValidationError") {
+      return next(new BadRequestError("Invalid ID"));
     }
     return next(e);
   }
@@ -70,6 +82,12 @@ async function unlikeItem(req, res, next) {
 
     return res.send(item);
   } catch (e) {
+    if (e.name === "DocumentNotFoundError") {
+      return next(new NotFoundError("Requested item not found"));
+    }
+    if (e.name === "ValidationError") {
+      return next(new BadRequestError("Invalid ID"));
+    }
     return next(e);
   }
 }

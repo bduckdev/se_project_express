@@ -1,12 +1,6 @@
 const { Joi, celebrate } = require("celebrate");
 const validator = require("validator");
 
-/*
-  clothing item:
-    str: 2-30 chars
-imageurl in url format
-  */
-
 function validateURL(val, helpers) {
   if (validator.isURL(val)) {
     return val;
@@ -45,6 +39,20 @@ module.exports.validateUserBody = celebrate({
   }),
 });
 
+module.exports.validateModifyUserBody = celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30).messages({
+      "string.min": 'The minimum length of the "name" field is 2',
+      "string.max": 'The maximum length of the "name" field is 30',
+      "string.empty": 'The "name" field must be filled in',
+    }),
+    avatar: Joi.string().required().custom(validateURL).messages({
+      "string.empty": 'The "imageUrl" field must be filled in',
+      "string.uri": 'the "imageUrl" field must be a valid url',
+    }),
+  }),
+});
+
 module.exports.validateCardBody = celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30).messages({
@@ -52,12 +60,7 @@ module.exports.validateCardBody = celebrate({
       "string.max": 'The maximum length of the "name" field is 30',
       "string.empty": 'The "name" field must be filled in',
     }),
-    weather: Joi.string().required().min(2).max(30).messages({
-      "string.min": 'The minimum length of the "name" field is 2',
-      "string.max": 'The maximum length of the "name" field is 30',
-      "string.empty": 'The "name" field must be filled in',
-    }),
-
+    weather: Joi.string().valid("hot", "warm", "cold").required(),
     imageUrl: Joi.string().required().custom(validateURL).messages({
       "string.empty": 'The "imageUrl" field must be filled in',
       "string.uri": 'the "imageUrl" field must be a valid url',
